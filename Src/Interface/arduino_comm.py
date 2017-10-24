@@ -6,6 +6,8 @@ from PyQt4 import QtCore, QtGui
 
 
 class Arduino_Comm(QtCore.QThread):
+    done_signal = QtCore.pyqtSignal(name='comm_done')
+
     def __init__(self, comm_port):
         super(Arduino_Comm, self).__init__()
 
@@ -13,8 +15,6 @@ class Arduino_Comm(QtCore.QThread):
         self.should_run = False
         self.motor_commands = None
 
-    #def send_commands(self):
-        #print ("Hi From Arduino")
 
     def run(self):
         """
@@ -25,6 +25,7 @@ class Arduino_Comm(QtCore.QThread):
         while True:
             if self.should_run:
                 start = time.time()
-                print ("Hi From Arduino")
+                #print ("Hi From Arduino")
                 self.should_run = False
+                self.done_signal.emit()
                 self.exec_time = time.time() - start

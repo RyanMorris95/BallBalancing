@@ -30,4 +30,4 @@ class PID(QtCore.QThread):
                 self.done_signal.emit(self.motor_commands)
                 self.should_run = False
                 self.exec_time = time.time() - start
-                print ("Hi From PID")
+                #print ("Hi From PID")

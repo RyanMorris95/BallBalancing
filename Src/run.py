@@ -28,6 +28,7 @@ def main():
 
     window.show()
     window.run()
+    app.aboutToQuit.connect(window.exit_handler)
     sys.exit(app.exec_())
 
 
