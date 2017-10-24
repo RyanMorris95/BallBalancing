@@ -31,6 +31,7 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.h_min_slider, self.v_min_slider, self.s_min_slider = None, None, None
         self.h_max_slider, self.v_max_slider, self.s_max_slider = None, None, None
         self.save_slider_values_btn, self.load_slider_values_btn = None, None
+        self.kp_slider, self.ki_slider, self.kd_slider = None, None, None
         self.setup_sliders()
 
         self.resize(874,526)
@@ -101,6 +102,23 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.ui_mainWindow.formLayout_2.addRow(self.load_slider_values_btn, QtGui.QLabel(" "))
         self.save_slider_values_btn.clicked.connect(self.save_values)
         self.load_slider_values_btn.clicked.connect(self.load_values)
+
+        self.ui_mainWindow.formLayout_2.addRow(QtGui.QLabel(" "), QtGui.QLabel(" "))
+
+        self.kp_slider = SlideEdit(0, 10)
+        kp_label = QtGui.QLabel('Kp', self)
+        self.kp_slider.setCurrentValue(2)
+        self.ui_mainWindow.formLayout_2.addRow(self.kp_slider, kp_label)
+
+        self.ki_slider = SlideEdit(0, 10)
+        ki_label = QtGui.QLabel('Ki', self)
+        self.ki_slider.setCurrentValue(2)
+        self.ui_mainWindow.formLayout_2.addRow(self.ki_slider, ki_label)
+
+        self.kd_slider = SlideEdit(0, 10)
+        kd_label = QtGui.QLabel('Kd', self)
+        self.kd_slider.setCurrentValue(2)
+        self.ui_mainWindow.formLayout_2.addRow(self.kd_slider, kd_label)
 
     def save_values(self):
         with open('slider_values.p', 'wb') as fp:

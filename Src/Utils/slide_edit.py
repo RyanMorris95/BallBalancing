@@ -96,7 +96,6 @@ class SlideEdit(QtGui.QLineEdit):
         self._boundsDiag.maxChanged.connect(self.updateMax)
 
 
-
     def UpdateCurrentValue(self):
         f = self.text().toFloat()
         self.setCurrentValue(f[0])

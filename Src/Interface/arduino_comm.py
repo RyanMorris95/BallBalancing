@@ -15,7 +15,6 @@ class Arduino_Comm(QtCore.QThread):
         self.should_run = False
         self.motor_commands = None
 
-
     def run(self):
         """
         Starts the arduino communication thread.  The thread will be blocked
