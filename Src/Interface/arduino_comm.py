@@ -5,7 +5,7 @@ import serial
 from PyQt4 import QtCore, QtGui
 
 
-class Arduino_Comm(QtCore.QThread):
+class Arduino_Comm(QtCore.QObject):
     done_signal = QtCore.pyqtSignal(name='comm_done')
 
     def __init__(self, comm_port):
@@ -21,10 +21,6 @@ class Arduino_Comm(QtCore.QThread):
         until it gets the motor commands from the PID thread.
         :return:
         """
-        while True:
-            if self.should_run:
-                start = time.time()
-                #print ("Hi From Arduino")
-                self.should_run = False
-                self.done_signal.emit()
-                self.exec_time = time.time() - start
+        start = time.time()
+        self.done_signal.emit()
+        self.exec_time = time.time() - start

@@ -21,16 +21,16 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.setWindowTitle('Ball Balancing')
 
         self.detectBallThread = DetectBall(self.ui_mainWindow)
-        self.arduinoCommThread = Arduino_Comm(100)
-        self.pidThread = PID()
+        self.arduinoComm = Arduino_Comm(100)
+        self.pid = PID()
 
         self.detectBallThread.done_signal.connect(self.cv_done)
-        self.pidThread.done_signal.connect(self.pid_done)
-        self.arduinoCommThread.done_signal.connect(self.comm_done)
+        self.pid.done_signal.connect(self.pid_done)
+        self.arduinoComm.done_signal.connect(self.comm_done)
 
         self.h_min_slider, self.v_min_slider, self.s_min_slider = None, None, None
         self.h_max_slider, self.v_max_slider, self.s_max_slider = None, None, None
-        self.save_slider_values_btn, self.load_slider_values_btn = None, None
+        self.save_cv_slider_values_btn, self.load_cv_slider_values_btn = None, None
         self.kp_slider, self.ki_slider, self.kd_slider = None, None, None
         self.setup_sliders()
 
@@ -38,20 +38,18 @@ class BallBalancingGui(QtGui.QMainWindow):
 
     def run(self):
         self.detectBallThread.start()
-        #self.arduinoCommThread.start()
-        #self.pidThread.start()
 
-    def cv_done(self):
-        self.pidThread.should_run = True
-        # self.pidThread.x = x
-        # self.pidThread.y = y
+    def cv_done(self, cx, cy):
+        self.pid.cx = cx
+        self.pid.cy = cy
+        self.pid.run()
 
     def pid_done(self, motor_commands):
-        self.arduinoCommThread.should_run = True
-        self.arduinoCommThread.motor_commands = motor_commands
+        self.arduinoComm.motor_commands = motor_commands
+        self.arduinoComm.run()
 
     def comm_done(self):
-        self.detectBallThread.should_run = True
+        pass
 
 
     def exit_handler(self):
@@ -96,12 +94,12 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.v_max_slider.setCurrentValue(200)
         self.ui_mainWindow.formLayout_2.addRow(self.v_max_slider, v_max_label)
 
-        self.save_slider_values_btn = QtGui.QPushButton("Save Values")
-        self.load_slider_values_btn = QtGui.QPushButton("Load Values")
-        self.ui_mainWindow.formLayout_2.addRow(self.save_slider_values_btn, QtGui.QLabel(" "))
-        self.ui_mainWindow.formLayout_2.addRow(self.load_slider_values_btn, QtGui.QLabel(" "))
-        self.save_slider_values_btn.clicked.connect(self.save_values)
-        self.load_slider_values_btn.clicked.connect(self.load_values)
+        self.save_cv_slider_values_btn = QtGui.QPushButton("Save CV Values")
+        self.load_cv_slider_values_btn = QtGui.QPushButton("Load CV Values")
+        self.ui_mainWindow.formLayout_2.addRow(self.save_cv_slider_values_btn, QtGui.QLabel(" "))
+        self.ui_mainWindow.formLayout_2.addRow(self.load_cv_slider_values_btn, QtGui.QLabel(" "))
+        self.save_cv_slider_values_btn.clicked.connect(self.save_values)
+        self.load_cv_slider_values_btn.clicked.connect(self.load_values)
 
         self.ui_mainWindow.formLayout_2.addRow(QtGui.QLabel(" "), QtGui.QLabel(" "))
 
@@ -120,12 +118,13 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.kd_slider.setCurrentValue(2)
         self.ui_mainWindow.formLayout_2.addRow(self.kd_slider, kd_label)
 
-    def save_values(self):
-        with open('slider_values.p', 'wb') as fp:
+    def save_values(self, test):
+        print (test)
+        with open('slider_cv_values.p', 'wb') as fp:
             p.dump([self.detectBallThread.hsv_min, self.detectBallThread.hsv_max], fp, protocol=2)
 
     def load_values(self):
-        with open('slider_values.p', 'rb') as fp:
+        with open('slider_cv_values.p', 'rb') as fp:
             data = p.load(fp)
             hsv_min = data[0]
             hsv_max = data[1]
@@ -133,6 +132,12 @@ class BallBalancingGui(QtGui.QMainWindow):
         print (hsv_min, hsv_max)
         self.detectBallThread.hsv_min = hsv_min
         self.detectBallThread.hsv_max = hsv_max
+        self.h_min_slider.setCurrentValue(hsv_min[0])
+        self.s_min_slider.setCurrentValue(hsv_min[1])
+        self.v_min_slider.setCurrentValue(hsv_min[2])
+        self.h_max_slider.setCurrentValue(hsv_max[0])
+        self.s_max_slider.setCurrentValue(hsv_max[1])
+        self.v_max_slider.setCurrentValue(hsv_max[2])
 
     def sliders_changed(self):
         hsv_min = np.array((self.h_min_slider._currentValue, self.s_min_slider._currentValue, self.v_min_slider._currentValue))
