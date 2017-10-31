@@ -58,6 +58,7 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.detectBallThread.SHOULD_RUN = False
 
     def setup_sliders(self):
+        self.ui_mainWindow.formLayout_2.addRow(QtGui.QLabel("Image Processing Values"))
         self.h_min_slider = SlideEdit(0, 255)
         h_min_label = QtGui.QLabel('H Min', self)
         self.h_min_slider.valueChanged.connect(self.sliders_changed)
@@ -102,6 +103,7 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.load_cv_slider_values_btn.clicked.connect(self.load_values)
 
         self.ui_mainWindow.formLayout_2.addRow(QtGui.QLabel(" "), QtGui.QLabel(" "))
+        self.ui_mainWindow.formLayout_2.addRow(QtGui.QLabel("PID Values"))
 
         self.kp_slider = SlideEdit(0, 10)
         kp_label = QtGui.QLabel('Kp', self)
@@ -117,6 +119,19 @@ class BallBalancingGui(QtGui.QMainWindow):
         kd_label = QtGui.QLabel('Kd', self)
         self.kd_slider.setCurrentValue(2)
         self.ui_mainWindow.formLayout_2.addRow(self.kd_slider, kd_label)
+
+        self.ui_mainWindow.formLayout_2.addRow(QtGui.QLabel(" "), QtGui.QLabel(" "))
+        self.ui_mainWindow.formLayout_2.addRow(QtGui.QLabel("Servo Values"))
+
+        self.servo1_slider = SlideEdit(0, 180)
+        servo1_label = QtGui.QLabel('Servo 1', self)
+        self.servo1_slider.setCurrentValue(180)
+        self.ui_mainWindow.formLayout_2.addRow(self.servo1_slider, servo1_label)
+
+        self.servo2_slider = SlideEdit(0, 180)
+        servo2_label = QtGui.QLabel('Servo 2', self)
+        self.servo2_slider.setCurrentValue(180)
+        self.ui_mainWindow.formLayout_2.addRow(self.servo2_slider, servo2_label)
 
     def save_values(self, test):
         print (test)

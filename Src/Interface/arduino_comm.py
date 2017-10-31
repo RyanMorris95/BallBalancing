@@ -14,6 +14,7 @@ class Arduino_Comm(QtCore.QObject):
         self.comm_port = comm_port
         self.should_run = False
         self.motor_commands = None
+        self.ser = None
 
     def run(self):
         """
@@ -24,3 +25,19 @@ class Arduino_Comm(QtCore.QObject):
         start = time.time()
         self.done_signal.emit()
         self.exec_time = time.time() - start
+
+
+    def stop_process(self):
+        self.p.join()
+
+    if __name__ == '__main__':
+        ser = serial.Serial('com3', timeout=1)
+        while True:
+            val = 0
+            dataPak = str(val)
+            time.sleep(4)
+            ser.write(b'0')
+            val = 180
+            dataPak = str(val)
+            time.sleep(4)
+            ser.write(b'180')
