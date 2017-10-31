@@ -12,6 +12,7 @@ from Controls.PID import PID
 from Utils.slide_edit import SlideEdit
 
 
+
 class BallBalancingGui(QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(BallBalancingGui, self).__init__(parent)
@@ -33,6 +34,10 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.save_cv_slider_values_btn, self.load_cv_slider_values_btn = None, None
         self.kp_slider, self.ki_slider, self.kd_slider = None, None, None
         self.setup_sliders()
+        # self.servoSlider = QtGui.QSlider(QtGui.QMainWindow)
+        # self.servoSlider.setMinimum(0)
+        # self.servoSlider.setMaximum(180)
+        # self.sl.setValue(0)
 
         self.resize(874,526)
 
@@ -126,11 +131,13 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.servo1_slider = SlideEdit(0, 180)
         servo1_label = QtGui.QLabel('Servo 1', self)
         self.servo1_slider.setCurrentValue(180)
+        self.servo1_slider.valueChanged.connect(self.sliders_changed)
         self.ui_mainWindow.formLayout_2.addRow(self.servo1_slider, servo1_label)
 
         self.servo2_slider = SlideEdit(0, 180)
         servo2_label = QtGui.QLabel('Servo 2', self)
         self.servo2_slider.setCurrentValue(180)
+        self.servo2_slider.releaseMouse()
         self.ui_mainWindow.formLayout_2.addRow(self.servo2_slider, servo2_label)
 
     def save_values(self, test):
@@ -154,8 +161,15 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.s_max_slider.setCurrentValue(hsv_max[1])
         self.v_max_slider.setCurrentValue(hsv_max[2])
 
+        self.servo1_slider.setCurrentValue(Arduino_Comm.servo1)
+        self.servo2_slider.setCurrentValue(Arduino_Comm.servo2)
+
     def sliders_changed(self):
         hsv_min = np.array((self.h_min_slider._currentValue, self.s_min_slider._currentValue, self.v_min_slider._currentValue))
         hsv_max = np.array((self.h_max_slider._currentValue, self.s_max_slider._currentValue, self.v_max_slider._currentValue))
         self.detectBallThread.hsv_min = hsv_min
         self.detectBallThread.hsv_max = hsv_max
+        print(int(self.servo1_slider._currentValue))
+        Arduino_Comm.send(self.arduinoComm, servo1=int(self.servo1_slider._currentValue),
+                                servo2=int(self.servo2_slider._currentValue))
+        # Arduino_Comm.servo2 = self.servo2_slider._currentValue

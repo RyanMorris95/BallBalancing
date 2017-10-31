@@ -81,6 +81,7 @@ class SlideEdit(QtGui.QLineEdit):
         self.maxTime = .01
         self.previousTime = 0
         self.sent = False
+        
 
         #Context Menu Actions
         self._resetBoundsAct = QtGui.QAction("Reset Bounds", self)
