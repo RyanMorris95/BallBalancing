@@ -43,7 +43,7 @@ class Arduino_Comm(QtCore.QObject):
         self.p.join()
 
     if __name__ == '__main__':
-        print 'hi'
+        print ('hi')
         # ser = serial.Serial('com3', timeout=1)
         # while True:
         #     servo1_val = 'b"' + self.servo1

@@ -19,6 +19,7 @@ def image_processing(input_queue, output_queue, hsv_min, hsv_max, cap):
     r = 0
     roi, hsv_roi, mask, term_crit, track_window = None, None, None, None, None
     while SHOULD_RUN:
+        start_time = time.time()
         data_in = input_queue.get()
         hsv_min = data_in[0]
         hsv_max = data_in[1]
@@ -70,6 +71,9 @@ def image_processing(input_queue, output_queue, hsv_min, hsv_max, cap):
 
 
 
+            fps = (1.0/(time.time() - start_time))
+            cv2.putText(frame, str(round(fps, 1))+' '+'FPS', (10, 30), font, 0.75, (0, 255, 0), 2,
+                                cv2.LINE_AA)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             output_queue.put([frame, [cx, cy]])
 
@@ -88,7 +92,7 @@ class DetectBall(QtCore.QThread):
         self.exec_time = None
         self.should_run = True
         self.ui_mainWindow = ui_mainWindow
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(1)
         self.p, self.queue = None, None
         self.cx, cy = None, None
 

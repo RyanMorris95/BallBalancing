@@ -2,7 +2,6 @@ from PyQt4 import QtCore, QtGui
 import math
 import time
 
-#@author Nathan Danque. Widget originally present in SwingInnovation's Odessa Application.
 
 class BoundsDialog(QtGui.QDialog):
     minChanged = QtCore.pyqtSignal(object)
@@ -81,7 +80,6 @@ class SlideEdit(QtGui.QLineEdit):
         self.maxTime = .01
         self.previousTime = 0
         self.sent = False
-        
 
         #Context Menu Actions
         self._resetBoundsAct = QtGui.QAction("Reset Bounds", self)
@@ -95,7 +93,6 @@ class SlideEdit(QtGui.QLineEdit):
         self._boundsDiagAct.triggered.connect(self.showBoundsDialog)
         self._boundsDiag.minChanged.connect(self.updateMin)
         self._boundsDiag.maxChanged.connect(self.updateMax)
-
 
     def UpdateCurrentValue(self):
         f = self.text().toFloat()

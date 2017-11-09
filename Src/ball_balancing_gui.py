@@ -2,6 +2,7 @@ import sys
 import time
 import numpy as np
 import pickle as p
+import pyqtgraph as pg
 
 from PyQt4 import QtGui
 from PyQt4 import QtCore
@@ -22,12 +23,15 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.setWindowTitle('Ball Balancing')
 
         self.detectBallThread = DetectBall(self.ui_mainWindow)
-        self.arduinoComm = Arduino_Comm(100)
-        self.pid = PID()
+        #self.arduinoComm = Arduino_Comm(100)
+        self.pid_x = PID()
+        self.pid_y = PID()
 
         self.detectBallThread.done_signal.connect(self.cv_done)
-        self.pid.done_signal.connect(self.pid_done)
-        self.arduinoComm.done_signal.connect(self.comm_done)
+        self.pid_x.done_signal.connect(self.pid_x_done)
+        self.pid_y.done_signal.connect(self.pid_y_done)
+
+        #self.arduinoComm.done_signal.connect(self.comm_done)
 
         self.h_min_slider, self.v_min_slider, self.s_min_slider = None, None, None
         self.h_max_slider, self.v_max_slider, self.s_max_slider = None, None, None
@@ -38,8 +42,12 @@ class BallBalancingGui(QtGui.QMainWindow):
         # self.servoSlider.setMinimum(0)
         # self.servoSlider.setMaximum(180)
         # self.sl.setValue(0)
+        self.pidX_plot_widget = pg.plot(title="PID X")
+        self.pidY_plot_widget = pg.plot(title="PID Y")
+        self.ui_mainWindow.taskGraphLayout.addWidget(self.pidX_plot_widget)
+        self.ui_mainWindow.taskGraphLayout.addWidget(self.pidY_plot_widget)
 
-        self.resize(874,526)
+        self.resize(885,800)
 
     def run(self):
         self.detectBallThread.start()
@@ -49,9 +57,18 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.pid.cy = cy
         self.pid.run()
 
-    def pid_done(self, motor_commands):
-        self.arduinoComm.motor_commands = motor_commands
-        self.arduinoComm.run()
+    def pid_x_done(self, motor_commands):
+        y = np.random.normal(size=1000)
+        self.pid_plot_widget.plot(time.time(), y)
+        #self.arduinoComm.motor_commands = motor_commands
+        #self.arduinoComm.run()
+
+    def pid_y_done(self, motor_commands):
+        y = np.random.normal(size=1000)
+        self.pid_plot_widget.plot(time.time(), y)
+        #self.arduinoComm.motor_commands = motor_commands
+        #self.arduinoComm.run()
+
 
     def comm_done(self):
         pass
@@ -63,39 +80,42 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.detectBallThread.SHOULD_RUN = False
 
     def setup_sliders(self):
+        #dp = 1, minDist = 400, param1 = 50, param2 = 30, minRadius = 0,
+        #maxRadius = 20
+
         self.ui_mainWindow.formLayout_2.addRow(QtGui.QLabel("Image Processing Values"))
         self.h_min_slider = SlideEdit(0, 255)
-        h_min_label = QtGui.QLabel('H Min', self)
+        h_min_label = QtGui.QLabel('dp', self)
         self.h_min_slider.valueChanged.connect(self.sliders_changed)
         self.h_min_slider.setCurrentValue(100)
         self.ui_mainWindow.formLayout_2.addRow(self.h_min_slider, h_min_label)
 
         self.s_min_slider = SlideEdit(0, 255)
-        s_min_label = QtGui.QLabel('S Min', self)
+        s_min_label = QtGui.QLabel('minDist', self)
         self.s_min_slider.valueChanged.connect(self.sliders_changed)
         self.s_min_slider.setCurrentValue(100)
         self.ui_mainWindow.formLayout_2.addRow(self.s_min_slider, s_min_label)
 
         self.v_min_slider = SlideEdit(0, 255)
-        v_min_label = QtGui.QLabel('V Min', self)
+        v_min_label = QtGui.QLabel('param1', self)
         self.v_min_slider.valueChanged.connect(self.sliders_changed)
         self.v_min_slider.setCurrentValue(100)
         self.ui_mainWindow.formLayout_2.addRow(self.v_min_slider, v_min_label)
 
         self.h_max_slider = SlideEdit(0, 255)
-        h_max_label = QtGui.QLabel('H Max', self)
+        h_max_label = QtGui.QLabel('param2', self)
         self.h_max_slider.valueChanged.connect(self.sliders_changed)
         self.h_max_slider.setCurrentValue(200)
         self.ui_mainWindow.formLayout_2.addRow(self.h_max_slider, h_max_label)
 
         self.s_max_slider = SlideEdit(0, 255)
-        s_max_label = QtGui.QLabel('S Max', self)
+        s_max_label = QtGui.QLabel('minRadius', self)
         self.s_max_slider.valueChanged.connect(self.sliders_changed)
         self.s_max_slider.setCurrentValue(200)
         self.ui_mainWindow.formLayout_2.addRow(self.s_max_slider, s_max_label)
 
         self.v_max_slider = SlideEdit(0, 255)
-        v_max_label = QtGui.QLabel('V Max', self)
+        v_max_label = QtGui.QLabel('maxRadius', self)
         self.v_max_slider.valueChanged.connect(self.sliders_changed)
         self.v_max_slider.setCurrentValue(200)
         self.ui_mainWindow.formLayout_2.addRow(self.v_max_slider, v_max_label)
@@ -169,7 +189,6 @@ class BallBalancingGui(QtGui.QMainWindow):
         hsv_max = np.array((self.h_max_slider._currentValue, self.s_max_slider._currentValue, self.v_max_slider._currentValue))
         self.detectBallThread.hsv_min = hsv_min
         self.detectBallThread.hsv_max = hsv_max
-        print(int(self.servo1_slider._currentValue))
-        Arduino_Comm.send(self.arduinoComm, servo1=int(self.servo1_slider._currentValue),
-                                servo2=int(self.servo2_slider._currentValue))
+        #Arduino_Comm.send(self.arduinoComm, servo1=int(self.servo1_slider._currentValue),
+                                #servo2=int(self.servo2_slider._currentValue))
         # Arduino_Comm.servo2 = self.servo2_slider._currentValue
