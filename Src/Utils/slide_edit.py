@@ -226,7 +226,7 @@ class SlideEdit(QtGui.QLineEdit):
         :return:
         """
         self._lockBounds = self._lockBoundsAct.isChecked()
-        print self._lockBounds
+        print (self._lockBounds)
 
     def contextMenuEvent(self, QContextMenuEvent):
         self._lockBoundsAct.setChecked(self._lockBounds)

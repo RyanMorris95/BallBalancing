@@ -9,7 +9,7 @@ SHOULD_RUN = True
 close_signal = QtCore.pyqtSignal(name='close')
 
 
-def image_processing(input_queue, output_queue, hsv_min, hsv_max, cap):
+def image_processing(input_queue, output_queue, proc_params, cap):
     font = cv2.FONT_HERSHEY_COMPLEX
     detection = True
     tracking = False
@@ -21,8 +21,6 @@ def image_processing(input_queue, output_queue, hsv_min, hsv_max, cap):
     while SHOULD_RUN:
         start_time = time.time()
         data_in = input_queue.get()
-        hsv_min = data_in[0]
-        hsv_max = data_in[1]
         ret, frame = cap.read()
         if ret:
             if detection:
@@ -69,14 +67,11 @@ def image_processing(input_queue, output_queue, hsv_min, hsv_max, cap):
                     cv2.putText(frame, str(cx) + ', ' + str(cy), (cx, cy - 10), font, 0.75, (255, 255, 0), 2,
                                 cv2.LINE_AA)
 
-
-
             fps = (1.0/(time.time() - start_time))
             cv2.putText(frame, str(round(fps, 1))+' '+'FPS', (10, 30), font, 0.75, (0, 255, 0), 2,
                                 cv2.LINE_AA)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             output_queue.put([frame, [cx, cy]])
-
 
 
 class DetectBall(QtCore.QThread):
@@ -86,22 +81,21 @@ class DetectBall(QtCore.QThread):
         super(DetectBall, self).__init__()
 
         self.frame = None  # will hold the current frame from webcam
-        self.hsv_min = np.array((100,100,100))
-        self.hsv_max = np.array((200,200,200))
+        self.proc_params = None
         self.mask = None  # binary color mask
         self.exec_time = None
         self.should_run = True
         self.ui_mainWindow = ui_mainWindow
-        self.cap = cv2.VideoCapture(1)
+        self.cap = cv2.VideoCapture(0)
         self.p, self.queue = None, None
         self.cx, cy = None, None
 
     def run(self):
         self.input_queue, self.output_queue = Queue(maxsize=1), Queue(maxsize=1)
-        self.p = Process(target=image_processing, args=(self.input_queue, self.output_queue, self.hsv_min, self.hsv_max, self.cap))
+        self.p = Process(target=image_processing, args=(self.input_queue, self.output_queue, self.proc_params, self.cap))
         self.p.start()
         while True:
-            self.input_queue.put([self.hsv_min, self.hsv_max])
+            self.input_queue.put([self.proc_params])
             out = self.output_queue.get()
             self.frame = out[0]
             self.cx, self.cy = out[1]

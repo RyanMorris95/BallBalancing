@@ -6,7 +6,15 @@ from ball_balancing_gui import BallBalancingGui
 
 def main():
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
-    app = QtGui.QApplication(sys.argv)
+    print ("here")
+    app = QtGui.QApplication.instance()
+    print (app)
+    if app is None:
+        app = QtGui.QApplication(sys.argv)
+    else:
+        print("QApplication isntance alread exists.")
+
+    print ("HERE")
     window = BallBalancingGui()
 
     app.setStyle(QtGui.QStyleFactory.create("plastique"))
@@ -26,6 +34,7 @@ def main():
     app.setPalette(pal)
     app.setStyleSheet("QSeparator { foreground-color: white }")
 
+    print ("here")
     window.show()
     window.run()
     app.aboutToQuit.connect(window.exit_handler)
@@ -33,5 +42,6 @@ def main():
 
 
 if __name__ == '__main__':
+    print ("here")
     main()
 
