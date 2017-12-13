@@ -3,10 +3,9 @@ import sys
 from PyQt4 import QtCore, QtGui
 from ball_balancing_gui import BallBalancingGui
 
-
 def main():
+
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
-    print ("here")
     app = QtGui.QApplication.instance()
     print (app)
     if app is None:
@@ -14,7 +13,6 @@ def main():
     else:
         print("QApplication isntance alread exists.")
 
-    print ("HERE")
     window = BallBalancingGui()
 
     app.setStyle(QtGui.QStyleFactory.create("plastique"))
@@ -34,7 +32,6 @@ def main():
     app.setPalette(pal)
     app.setStyleSheet("QSeparator { foreground-color: white }")
 
-    print ("here")
     window.show()
     window.run()
     app.aboutToQuit.connect(window.exit_handler)
