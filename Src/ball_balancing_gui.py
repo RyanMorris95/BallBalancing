@@ -13,6 +13,8 @@ from ComputerVision.detect_ball import DetectBall
 from Interface.arduino_comm import Arduino_Comm
 from Controls.PID import PID
 from Utils.slide_edit import SlideEdit
+import pyqtgraph as pg
+
 
 
 class BallBalancingGui(QtGui.QMainWindow):
@@ -46,31 +48,70 @@ class BallBalancingGui(QtGui.QMainWindow):
         # self.servoSlider.setMaximum(180)
         # self.sl.setValue(0)
         # self.arduinoComm.send(servo1=35, servo2=15)
-        # self.pidX_plot_widget = pg.plot(self.x_times, self.x_commands, title="PID X")
+        # pg.setConfigOption(antialias=True)
+        self.win = pg.GraphicsWindow(title="Servo Plot")
+        self.ui_mainWindow.taskGraphLayout.addWidget(self.win)
+        self.pidX_plot_widget = self.win.addPlot()
+        self.rBrush = pg.mkPen(color=(255,0,0))
+        self.bBrush = pg.mkPen(color=(0,0,255))
+        self.pidX_plot_widget.addLegend()
+        self.curve = self.pidX_plot_widget.plot(pen=self.rBrush, name='servo 1: X control')
+        self.curve2 = self.pidX_plot_widget.plot(pen=self.bBrush, name='servo 2: Y control')
+        # self.win = pg.GraphicsWindow(title="PID_Y Plot")
+        # self.pidY_plot_widget = self.win.addPlot()
+        # self.curve = self.pidX_plot_widget.plot()
         # self.pidX_plot_widget.addItem(pg.PlotCurveItem())
         # self.pidY_plot_widget = pg.plot(self.y_times, self.y_commands, title="PID Y")
-        # self.pidY_plot_widget.addItem(pg.PlotCurveItem())
+        # # self.pidY_plot_widget.addItem(pg.PlotCurveItem())
+        # self.curve2 = self.pidY_plot_widget.plot()
         # self.ui_mainWindow.taskGraphLayout.addWidget(self.pidX_plot_widget)
         # self.ui_mainWindow.taskGraphLayout.addWidget(self.pidY_plot_widget)
-
-
-        self.start_time = time.time()
-
-        self.resize(885, 800)
+        # self.timer = QtCore.QTimer(self)
+        # self.timer.setInterval(100)
+        # self.timer.start()
+        # self.plot0 = True
+        # self.start_time = time.time()
+        self.resize(1005, 1200)
+        self.windowWidth = 500
+        self.Xm = np.linspace(0,0,self.windowWidth)
+        self.ptr = -self.windowWidth
+        self.moto0 = None
+        self.Xm2 = np.linspace(0, 0, self.windowWidth)
+        self.ptr2 = -self.windowWidth
+        self.moto1 = None
 
     def run(self):
         self.detectBallThread.start()
+        self.pidX_plot_widget = self.pidX_plot_widget.plot(self.x_times, self.x_commands, title="PID X")
+
 
     def cv_done(self, cx, cy):
         if self.detectBallThread.ready:
             self.pid.run([cx, cy])
 
     def pid_done(self, motor_commands):
-        if motor_commands:
-            # self.x_commands.append(motor_commands)
-            # self.x_times.append(time.time()-self.start_time)
-            # self.pidX_plot_widget.plotItem.setData(np.array(self.x_commands))
-            self.arduinoComm.send(servo1=motor_commands[0], servo2=motor_commands[1])
+        # self.x_commands.append(motor_commands)
+        # self.x_times.append(time.time()-self.start_time)
+        # self.pidX_plot_widget.plotItem(motor_commands[0])
+        self.arduinoComm.send(servo1=motor_commands[0], servo2=motor_commands[1])
+        self.moto0 = motor_commands[0]
+        self.moto1 = motor_commands[1]
+        import random
+        if random.randint(0, 2) == 1:
+            self.plot()
+
+    def plot(self):
+        self.Xm[:-1] = self.Xm[1:]
+        self.Xm[-1] = self.moto0
+        self.ptr += 1
+        self.curve.setData(self.Xm)
+        self.curve.setPos(self.ptr, 0)
+        self.Xm2[:-1] = self.Xm2[1:]
+        self.Xm2[-1] = self.moto1
+        self.ptr2 += 1
+        self.curve2.setData(self.Xm2)
+        self.curve2.setPos(self.ptr2, 0)
+        QtGui.QApplication.processEvents()
 
     def comm_done(self):
         pass
@@ -115,8 +156,8 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.reset_cv_btn = QtGui.QPushButton("Reset CV")
         self.start_cv_btn = QtGui.QPushButton("Start")
         self.tracking_cv_btn = QtGui.QPushButton("Track")
-        self.ui_mainWindow.formLayout_2.addRow(self.reset_cv_btn, self.start_cv_btn)
-        self.ui_mainWindow.formLayout_2.addRow(self.tracking_cv_btn, QtGui.QLabel(" "))
+        self.ui_mainWindow.formLayout_2.addRow(self.start_cv_btn, QtGui.QLabel(" "))
+        self.ui_mainWindow.formLayout_2.addRow(self.reset_cv_btn, QtGui.QLabel(" "))
         self.tracking_cv_btn.clicked.connect(self.track_cv)
         self.reset_cv_btn.clicked.connect(self.reset_cv)
         self.start_cv_btn.clicked.connect(self.start_cv)

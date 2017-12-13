@@ -32,23 +32,16 @@ def image_processing(input_queue, output_queue, proc_params, cap):
     r = 0
     roi, hsv_roi, mask, term_crit, track_window = None, None, None, None, None
 
-    # timer = QtCore.QTimer()
-    # timer.timeout.connect(timer_done)
-    # timer.start(1000)
-
     while SHOULD_RUN:
+
         start_time = time.time()
         proc_params = input_queue.get()
         ret, frame = cap.read()
-        cv2.circle(frame, (center[1], center[0]), 40, (0, 255, 255), 3)
+        cv2.circle(frame, (center[1], center[0]), 60, (0, 255, 255), 3)
         img_proc_params = [int(i) for i in proc_params[0][0:6]]
         ready = proc_params[0][6]
         reset = proc_params[0][7]
 
-        # if reset:
-        #     print ("RESETTING!")
-        #     detection = True
-        #     tracking = False
 
         if ret:
             if detection and ready:
@@ -110,7 +103,7 @@ def image_processing(input_queue, output_queue, proc_params, cap):
                         cv2.LINE_AA)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             output_queue.put([frame, [x, y]])
-
+            print ("CV Runtime: ", (time.time() - start_time))
 
 class DetectBall(QtCore.QThread):
     done_signal = QtCore.pyqtSignal(int, int, name='cv_done')
