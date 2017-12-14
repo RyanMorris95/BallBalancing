@@ -21,7 +21,7 @@ class PID(QtCore.QObject):
         self.motor_command_1, self.motor_command_2 = None, None
         self.servo2_max, self.servo2_min = 70, 5  # tip +y, tip -y
         self.servo1_max, self.servo1_min = 120, 1  # top +x, tip -x
-        self.servo1_flat, self.servo2_flat = 10, 35
+        self.servo1_flat, self.servo2_flat = 15, 25
         self.y_angle_conv = 0  # to convert y pixels to angle  # started: 20/220  best:
         self.x_angle_conv = 0  # to convert x pixels to angle
         self.kP_Y, self.kI_Y, self.kD_Y = self.y_angle_conv, 0.0, 0.0

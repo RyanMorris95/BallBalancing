@@ -14,9 +14,9 @@ class Arduino_Comm(QtCore.QObject):
         self.comm_port = comm_port
         self.should_run = False
         self.motor_commands = None
-        self.ser = serial.Serial('/dev/ttyACM1', baudrate=2000000, timeout=1)
-        self.servo1 = 35
-        self.servo2 = 10
+        self.ser = serial.Serial('/dev/ttyACM0', baudrate=2000000, timeout=1)
+        self.servo1 = 25
+        self.servo2 = 15
         self.first = True
 
     def run(self):
@@ -43,7 +43,6 @@ class Arduino_Comm(QtCore.QObject):
                     self.ser.write(str(ser_command))  # max angle of 315, min = 200 -- flat = 235
                     self.servo1 = servo1
                     self.servo2 = servo2
-                    print ("Serial Write Time: ", (time.time() - start_time))
                 else:
                     self.ser.flushOutput()
 

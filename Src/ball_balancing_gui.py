@@ -4,6 +4,7 @@ import numpy as np
 import pickle as p
 import pyqtgraph as pg
 import ComputerVision.detect_ball as detect_ball
+import random
 
 from collections import deque
 from PyQt4 import QtGui
@@ -96,7 +97,6 @@ class BallBalancingGui(QtGui.QMainWindow):
         self.arduinoComm.send(servo1=motor_commands[0], servo2=motor_commands[1])
         self.moto0 = motor_commands[0]
         self.moto1 = motor_commands[1]
-        import random
         if random.randint(0, 2) == 1:
             self.plot()
 
@@ -203,13 +203,13 @@ class BallBalancingGui(QtGui.QMainWindow):
 
         self.servo1_edit = QtGui.QLineEdit()
         servo1_label = QtGui.QLabel('Servo 1', self)
-        self.servo1_edit.setText("10")
+        self.servo1_edit.setText("15")
         self.servo1_edit.returnPressed.connect(self.edits_changed)
         self.ui_mainWindow.formLayout_2.addRow(self.servo1_edit, servo1_label)
 
         self.servo2_edit = QtGui.QLineEdit()
         servo2_label = QtGui.QLabel('Servo 2', self)
-        self.servo2_edit.setText("35")
+        self.servo2_edit.setText("25")
         self.servo2_edit.returnPressed.connect(self.edits_changed)
         self.servo2_edit.releaseMouse()
         self.ui_mainWindow.formLayout_2.addRow(self.servo2_edit, servo2_label)
