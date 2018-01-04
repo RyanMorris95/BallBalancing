@@ -4,8 +4,7 @@ import numpy as np
 
 from multiprocessing import Queue, Process, Pipe
 from PyQt4 import QtCore, QtGui
-from pympler.tracker import SummaryTracker
-from mem_top import mem_top
+
 
 SHOULD_RUN = True
 close_signal = QtCore.pyqtSignal(name='close')
